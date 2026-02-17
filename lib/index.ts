@@ -2,7 +2,7 @@ import axios, { AxiosError } from 'axios';
 import qs from 'qs';
 import jwt from 'jsonwebtoken';
 
-const API_HOST = 'https://conso.boris.sh';
+const API_HOST = 'https://myelectricaldata.fr';
 
 export enum DataType {
   daily_consumption = 'daily_consumption',
