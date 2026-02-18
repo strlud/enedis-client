@@ -2,7 +2,7 @@ import axios, { AxiosError } from 'axios';
 import qs from 'qs';
 import jwt from 'jsonwebtoken';
 
-const API_HOST = 'https://www.myelectricaldata.fr';
+const API_HOST = 'https://myelectricaldata.fr';
 
 export enum DataType {
   daily_consumption = 'daily_consumption',
@@ -66,11 +66,23 @@ export type MaxPowerResponse = APIResponse & {
 
 export class Session {
   private prms: string[] = [];
-  public userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:147.0) Gecko/20100101 Firefox/147.0';
+  public userAgent = '@bokub/linky';
 
   constructor(private token: string, private prm?: string) {
-    this.prm = prm ?? process.env.PRM;
-    this.token = token ?? process.env.TOKEN;
+    try {
+      const decoded: { sub: string[] } = jwt.decode(token) as any;
+      this.prms = decoded.sub;
+    } catch (err) {
+      throw new Error('Le token est invalide');
+    }
+
+    if (!Array.isArray(this.prms) || this.prms.length === 0) {
+      throw new Error('Le token est invalide');
+    }
+
+    if (this.prm && !this.prms.includes(this.prm)) {
+      throw new Error("Ce token ne permet pas d'accéder au PRM " + this.prm);
+    }
   }
 
   getDailyConsumption(start: string, end: string): Promise<EnergyResponse> {
@@ -94,17 +106,21 @@ export class Session {
   }
 
   private callApi<T>(type: DataType, start: string, end: string): Promise<T> {
-    const url = `${API_HOST}/${type}/${this.prm || this.prms[0]}/start/${start}/end/${end}/cache`;
+    const url = `${API_HOST}/${type}?${qs.stringify({
+      start: start,
+      end: end,
+      prm: this.prm || this.prms[0],
+    })}`;
 
     return axios
       .get<T>(url, {
         headers: {
-          Authorization: this.token,
+          Authorization: `c2eISxASPKs3at74aM0CuFk3QJYlm2icsjXATfU9eHU=`,
           Accept: 'application/json',
           'User-Agent': this.userAgent,
         },
       })
-      .then((res) => (res.data as any).meter_reading)
+      .then((res) => res.data)
       .catch((err) => {
         if (err.response) {
           throw new APIError(err, err.response.status, err.response.data);

@@ -1,0 +1,9 @@
+{
+  "packages": ["nodejs@16"],
+  "shell": {
+    "init_hook": ["npm ci", "npm install -D typescript", "npm run build"],
+    "scripts": {
+      "run_test": "npm run start"
+    }
+  }
+}
