@@ -94,7 +94,7 @@ export class Session {
   }
 
   private callApi<T>(type: DataType, start: string, end: string): Promise<T> {
-    const url = `${API_HOST}/${type}/${this.prm || this.prms[0]}/start/${start}/end/${end}/cache`;
+    const url = `${API_HOST}/${type}/${this.prm || this.prms[0]}/start/${start}/end/${end}`;
 
     return axios
       .get<T>(url, {
