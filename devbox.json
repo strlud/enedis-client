@@ -1,5 +1,5 @@
 {
-  "packages": ["nodejs@16"],
+  "packages": ["nodejs@18"],
   "shell": {
     "init_hook": ["npm ci", "npm install -D typescript", "npm run build"],
     "scripts": {
